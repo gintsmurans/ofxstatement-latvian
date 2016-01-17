@@ -33,7 +33,7 @@ setup(name='ofxstatement-latvian',
       entry_points={
           'ofxstatement':
           ['swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
-           'dnbLV = ofxstatement.plugins.dnbLV:dnbLVPlugin']
+           'dnbLV = ofxstatement.plugins.dnbLV:DnbLVPlugin']
           },
       install_requires=['ofxstatement'],
       include_package_data=True,

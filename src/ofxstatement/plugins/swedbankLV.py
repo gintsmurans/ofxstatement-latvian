@@ -48,8 +48,13 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
 
             # parse transaction line in standard fasion
             stmtline = super(SwedbankLVCsvStatementParser, self).parse_record(line)
+            stmtline.trntype = "DEP"
             if line[7] == "D":
                 stmtline.amount = -stmtline.amount
+                stmtline.trntype = "DEBIT"
+
+            if line[9] == 'KOM':
+                stmtline.trntype = "SRVCHG"
 
             m = CARD_PURCHASE_RE.match(stmtline.memo)
             if m:
