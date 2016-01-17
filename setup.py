@@ -9,15 +9,15 @@ version = "0.0.1"
 with open('README.rst') as f:
     long_description = f.read()
 
-setup(name='ofxstatement-sample',
+setup(name='ofxstatement-latvian',
       version=version,
-      author="Andrey Lebedev",
-      author_email="andrey@lebedev.lt",
-      url="https://github.com/kedder/ofxstatement",
-      description=("Sample plugin for ofxstatement"),
+      author="Gints Murans",
+      author_email="gm@gm.lv",
+      url="https://github.com/gintsmurans/ofxstatement-latvian",
+      description=("Statement parsers for banks operating in Latvia"),
       long_description=long_description,
       license="GPLv3",
-      keywords=["ofx", "banking", "statement"],
+      keywords=["ofx", "ofxstatement", "banking", "statement", "latvia"],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Programming Language :: Python :: 3',
@@ -32,7 +32,8 @@ setup(name='ofxstatement-sample',
       namespace_packages=["ofxstatement", "ofxstatement.plugins"],
       entry_points={
           'ofxstatement':
-          ['sample = ofxstatement.plugins.sample:SamplePlugin']
+          ['swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
+           'dnbLV = ofxstatement.plugins.dnbLV:dnbLVPlugin']
           },
       install_requires=['ofxstatement'],
       include_package_data=True,
