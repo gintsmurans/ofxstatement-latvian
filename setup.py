@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 """Setup
+
+#Note: To publish new version: `./setup.py sdist upload`
 """
 from setuptools import find_packages
 from distutils.core import setup
 
-version = "1.0.1"
+version = "1.2.0"
 
 with open('README.rst') as f:
     long_description = f.read()
@@ -31,9 +33,11 @@ setup(name='ofxstatement-latvian',
       package_dir={'': 'src'},
       namespace_packages=["ofxstatement", "ofxstatement.plugins"],
       entry_points={
-          'ofxstatement':
-          ['swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
-           'dnbLV = ofxstatement.plugins.dnbLV:DnbLVPlugin']
+          'ofxstatement':[
+               'swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
+               'dnbLV = ofxstatement.plugins.dnbLV:DnbLVPlugin',
+               'citadeleLV = ofxstatement.plugins.citadeleLV:CitadeleLVPlugin',
+           ]
           },
       install_requires=['ofxstatement'],
       include_package_data=True,
