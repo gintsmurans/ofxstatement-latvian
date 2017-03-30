@@ -6,7 +6,7 @@
 from setuptools import find_packages
 from distutils.core import setup
 
-version = "1.2.0"
+version = "1.3.0"
 
 with open('README.rst') as f:
     long_description = f.read()
@@ -37,6 +37,7 @@ setup(name='ofxstatement-latvian',
                'swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
                'dnbLV = ofxstatement.plugins.dnbLV:DnbLVPlugin',
                'citadeleLV = ofxstatement.plugins.citadeleLV:CitadeleLVPlugin',
+               'sebLV = ofxstatement.plugins.sebLV:SebLVPlugin',
            ]
           },
       install_requires=['ofxstatement'],
