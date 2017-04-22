@@ -90,7 +90,7 @@ class CitadeleLVStatementParser(StatementParser):
 #             date = '%s-%s-%s' % (date[2], date[1], date[0])
 #             stmt_line.date_user = self.parse_datetime(date)
 
-        print(stmt_line, stmt_line.trntype)
+        # print(stmt_line, stmt_line.trntype)
         return stmt_line
 
     def parse_float(self, value):
