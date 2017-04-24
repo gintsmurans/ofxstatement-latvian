@@ -2,6 +2,7 @@
 
 import re
 import csv
+import logging
 
 from ofxstatement.parser import CsvStatementParser
 from ofxstatement.plugin import Plugin
@@ -11,6 +12,8 @@ from ofxstatement.statement import Statement, StatementLine
 class SebLV_CSVStatementParser(CsvStatementParser):
     date_format = "%d.%m.%Y"
     card_purchase_re = re.compile(r".*#(\d+)$")
+
+    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
 
     def split_records(self):
         csv_file = csv.reader(self.fin.readlines(), delimiter=';', quotechar='"')
@@ -70,8 +73,10 @@ class SebLV_CSVStatementParser(CsvStatementParser):
         elif 'PMNTRCDTESCT' in type_code or 'PMNTICDTESCT' in type_code:
             stmt_line.trntype = "XFER"
 
-        # Print for testing purposes and return our converted statement line
-#         print(stmt_line, stmt_line.trntype)
+        # DEBUG
+        if self.debug:
+            print(stmt_line, stmt_line.trntype)
+
         return stmt_line
 
     def parse_float(self, value):

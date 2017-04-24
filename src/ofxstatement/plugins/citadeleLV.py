@@ -1,19 +1,21 @@
 """Parser implementation for Citadele generated statement reports"""
 
 import re
+import logging
 from xml.etree import ElementTree
 
 from ofxstatement.parser import StatementParser
 from ofxstatement.plugin import Plugin
 from ofxstatement.statement import Statement, StatementLine
 
-#CARD_PURCHASE_RE = re.compile(r".* Pirkums - .*? - par (\d\d\/\d\d\/\d\d\d\d)", re.U | re.M)
 
 class CitadeleLVStatementParser(StatementParser):
     date_format = "%Y-%m-%d"
 
     statement = None
     fin = None  # file input stream
+
+    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
 
     def __init__(self, fin):
         self.statement = Statement()
@@ -81,16 +83,10 @@ class CitadeleLVStatementParser(StatementParser):
         elif type_code == 'INP':
             stmt_line.trntype = "XFER"
 
-#        # Check if paid by card
-#         m = CARD_PURCHASE_RE.match(stmt_line.memo)
-#         if m:
-#             # this is an electronic purchase. extract some useful
-#             # information from memo field
-#             date = m.group(1).split('/')
-#             date = '%s-%s-%s' % (date[2], date[1], date[0])
-#             stmt_line.date_user = self.parse_datetime(date)
+        # DEBUG
+        if self.debug:
+            print(stmt_line, stmt_line.trntype)
 
-        # print(stmt_line, stmt_line.trntype)
         return stmt_line
 
     def parse_float(self, value):

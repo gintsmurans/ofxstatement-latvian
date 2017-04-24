@@ -2,6 +2,7 @@
 
 import re
 import csv
+import logging
 
 from ofxstatement.parser import CsvStatementParser
 from ofxstatement.plugin import Plugin
@@ -21,6 +22,8 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
                 "amount": 5,
                 "id": 8}
     date_format = "%d.%m.%Y"
+
+    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
 
     def split_records(self):
         csv_file = csv.reader(self.fin.readlines(), delimiter=';', quotechar='"')
@@ -64,15 +67,27 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
                 stmtline.date_user = self.parse_datetime(dt)
                 stmtline.check_no = m.group(2)
 
+            # DEBUG
+            if self.debug:
+                print(stmtline, stmtline.trntype)
+
             return stmtline
 
         elif lineType == LINETYPE_ENDBALANCE:
             self.statement.end_balance = self.parse_float(line[5])
             self.statement.end_date = self.parse_datetime(line[2])
 
+            # DEBUG
+            if self.debug:
+                print("End balance: %s" % self.statement.end_balance)
+
         elif lineType == LINETYPE_STARTBALANCE and self.statement.start_balance == None:
             self.statement.start_balance = self.parse_float(line[5])
             self.statement.start_date = self.parse_datetime(line[2])
+
+            # DEBUG
+            if self.debug:
+                print("Start balance: %s" % self.statement.start_balance)
 
     def parse_float(self, value):
         return value if isinstance(value, float) else float(value.replace(',', '.'))

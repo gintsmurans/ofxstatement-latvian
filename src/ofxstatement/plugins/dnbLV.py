@@ -1,6 +1,7 @@
 """Parser implementation for DNB generated statement reports"""
 
 import re
+import logging
 from xml.etree import ElementTree
 
 from ofxstatement.parser import StatementParser
@@ -14,6 +15,8 @@ class dnbLVStatementParser(StatementParser):
 
     statement = None
     fin = None  # file input stream
+
+    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
 
     def __init__(self, fin):
         self.statement = Statement()
@@ -86,7 +89,10 @@ class dnbLVStatementParser(StatementParser):
             date = '%s-%s-%s' % (date[2], date[1], date[0])
             stmt_line.date_user = self.parse_datetime(date)
 
-        #print(stmt_line)
+        # DEBUG
+        if self.debug:
+            print(stmt_line, stmt_line.trntype)
+
         return stmt_line
 
     def parse_float(self, value):
