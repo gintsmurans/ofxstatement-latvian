@@ -96,7 +96,8 @@ class SwedbankLVPlugin(Plugin):
     """Latvian Swedbank CSV"""
 
     def get_parser(self, fin):
-        f = open(fin, "r")
+        encoding = self.settings.get('charset', 'utf-8')
+        f = open(fin, "r", encoding=encoding)
         parser = SwedbankLVCsvStatementParser(f)
         parser.statement.currency = self.settings.get('currency', 'EUR')
         return parser

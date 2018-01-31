@@ -87,7 +87,8 @@ class SebLVPlugin(Plugin):
     """Latvian SEB CSV"""
 
     def get_parser(self, fin):
-        f = open(fin, "r")
+        encoding = self.settings.get('charset', 'utf-8')
+        f = open(fin, "r", encoding=encoding)
         parser = SebLV_CSVStatementParser(f)
         parser.statement.currency = self.settings.get('currency', 'EUR')
         return parser
