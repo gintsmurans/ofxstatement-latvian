@@ -74,7 +74,7 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
             return stmtline
 
         elif lineType == LINETYPE_ENDBALANCE:
-            self.statement.end_balance = self.parse_float(line[5])
+            self.statement.end_balance = self.parse_decimal(line[5])
             self.statement.end_date = self.parse_datetime(line[2])
 
             # DEBUG
@@ -82,15 +82,12 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
                 print("End balance: %s" % self.statement.end_balance)
 
         elif lineType == LINETYPE_STARTBALANCE and self.statement.start_balance == None:
-            self.statement.start_balance = self.parse_float(line[5])
+            self.statement.start_balance = self.parse_decimal(line[5])
             self.statement.start_date = self.parse_datetime(line[2])
 
             # DEBUG
             if self.debug:
                 print("Start balance: %s" % self.statement.start_balance)
-
-    def parse_float(self, value):
-        return value if isinstance(value, float) else float(value.replace(',', '.'))
 
 class SwedbankLVPlugin(Plugin):
     """Latvian Swedbank CSV"""
