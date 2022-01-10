@@ -2,7 +2,7 @@ This is a plugin for `ofxstatement`_ to parse and convert proprietary bank state
 
 Statements from these banks are currently supported:
 
-* `Swedbank`_ - CSV files
+* `Swedbank`_ - CSV, FIDAVISTA xml files
 * `DNB`_ - FIDAVISTA xml files
 * `Citadele`_ - FIDAVISTA v1.2 xml files
 * `SEB`_ - CSV files

@@ -35,6 +35,7 @@ setup(name='ofxstatement-latvian',
       entry_points={
           'ofxstatement':[
                'swedbankLV = ofxstatement.plugins.swedbankLV:SwedbankLVPlugin',
+               'swedbankLVFV = ofxstatement.plugins.swedbankLVFiDAViSta:SwedbankLVFiDAViStaPlugin',
                'dnbLV = ofxstatement.plugins.dnbLV:DnbLVPlugin',
                'citadeleLV = ofxstatement.plugins.citadeleLV:CitadeleLVPlugin',
                'sebLV = ofxstatement.plugins.sebLV:SebLVPlugin',
