@@ -28,6 +28,11 @@ class SwedbankLVFidavistaStatementParser(StatementParser):
         namespaces = {'ns': xml.tag[1:].partition("}")[0]}
         statement = xml.find('ns:Statement', namespaces=namespaces)
 
+        if statement == None:
+            raise ValueError(
+                "Cannot find ns:Statement element, is this Fidavista format?"
+            )
+
         period = statement.find('ns:Period', namespaces=namespaces)
         self.statement.start_date = self.parse_datetime(period.find('ns:StartDate', namespaces=namespaces).text)
         self.statement.end_date = self.parse_datetime(period.find('ns:EndDate', namespaces=namespaces).text)
@@ -67,7 +72,7 @@ class SwedbankLVFidavistaStatementParser(StatementParser):
         # Create statement line
         stmt_line = StatementLine(id, self.parse_datetime(booking_date), note, self.parse_float(amount))
         stmt_line.payee = payee_name
-        stmt_line.date_user = value_date
+        stmt_line.date_user = self.parse_datetime(value_date)
 
         # Credit & Debit stuff
         stmt_line.trntype = "DEP"
