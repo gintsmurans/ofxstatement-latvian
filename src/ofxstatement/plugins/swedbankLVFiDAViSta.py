@@ -15,7 +15,7 @@ class SwedbankLVFidavistaStatementParser(StatementParser):
     statement = None
     fin = None  # file input stream
 
-    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
+    debug = logging.getLogger().getEffectiveLevel() == logging.DEBUG
 
     def __init__(self, fin):
         self.statement = Statement()
@@ -25,71 +25,80 @@ class SwedbankLVFidavistaStatementParser(StatementParser):
         xml = ElementTree.parse(self.fin)
         xml = xml.getroot()
 
-        namespaces = {'ns': xml.tag[1:].partition("}")[0]}
-        statement = xml.find('ns:Statement', namespaces=namespaces)
+        namespaces = {"ns": xml.tag[1:].partition("}")[0]}
+        statement = xml.find("ns:Statement", namespaces=namespaces)
 
         if statement == None:
             raise ValueError(
                 "Cannot find ns:Statement element, is this Fidavista format?"
             )
 
-        period = statement.find('ns:Period', namespaces=namespaces)
-        self.statement.start_date = self.parse_datetime(period.find('ns:StartDate', namespaces=namespaces).text)
-        self.statement.end_date = self.parse_datetime(period.find('ns:EndDate', namespaces=namespaces).text)
+        period = statement.find("ns:Period", namespaces=namespaces)
+        self.statement.start_date = self.parse_datetime(
+            period.find("ns:StartDate", namespaces=namespaces).text
+        )
+        self.statement.end_date = self.parse_datetime(
+            period.find("ns:EndDate", namespaces=namespaces).text
+        )
 
-        account = statement.find('ns:AccountSet', namespaces=namespaces)
+        account = statement.find("ns:AccountSet", namespaces=namespaces)
         if not self.statement.account_id:
-            self.statement.account_id = account.find('ns:AccNo', namespaces=namespaces).text
+            self.statement.account_id = account.find(
+                "ns:AccNo", namespaces=namespaces
+            ).text
 
-        transactions = account.find('ns:CcyStmt', namespaces=namespaces)
-        self.statement.start_balance = self.parse_float(transactions.find('ns:OpenBal', namespaces=namespaces).text)
+        transactions = account.find("ns:CcyStmt", namespaces=namespaces)
+        self.statement.start_balance = self.parse_float(
+            transactions.find("ns:OpenBal", namespaces=namespaces).text
+        )
 
-        all_transactions = transactions.findall('ns:TrxSet', namespaces=namespaces)
+        all_transactions = transactions.findall("ns:TrxSet", namespaces=namespaces)
 
         return all_transactions
 
     def parse_record(self, line):
         # Namespace stuff
-        namespaces = {'ns': line.tag[1:].partition("}")[0]}
+        namespaces = {"ns": line.tag[1:].partition("}")[0]}
 
         # Get all fields
-        type_code = line.find('ns:TypeCode', namespaces=namespaces).text
-        booking_date = line.find('ns:BookDate', namespaces=namespaces).text
-        value_date = line.find('ns:ValueDate', namespaces=namespaces).text
-        c_or_d = line.find('ns:CorD', namespaces=namespaces).text
-        amount = line.find('ns:AccAmt', namespaces=namespaces).text
-        id = line.find('ns:BankRef', namespaces=namespaces).text
-        note = line.find('ns:PmtInfo', namespaces=namespaces).text
+        type_code = line.find("ns:TypeCode", namespaces=namespaces).text
+        booking_date = line.find("ns:BookDate", namespaces=namespaces).text
+        value_date = line.find("ns:ValueDate", namespaces=namespaces).text
+        c_or_d = line.find("ns:CorD", namespaces=namespaces).text
+        amount = line.find("ns:AccAmt", namespaces=namespaces).text
+        id = line.find("ns:BankRef", namespaces=namespaces).text
+        note = line.find("ns:PmtInfo", namespaces=namespaces).text
 
         # Payee name
         payee_name = None
-        payee = line.find('ns:CPartySet', namespaces=namespaces)
+        payee = line.find("ns:CPartySet", namespaces=namespaces)
         if payee:
-            payee_account = payee.find('ns:AccHolder', namespaces=namespaces)
+            payee_account = payee.find("ns:AccHolder", namespaces=namespaces)
             if payee_account:
-                payee_name = payee_account.find('ns:Name', namespaces=namespaces).text
+                payee_name = payee_account.find("ns:Name", namespaces=namespaces).text
 
         # Create statement line
-        stmt_line = StatementLine(id, self.parse_datetime(booking_date), note, self.parse_float(amount))
+        stmt_line = StatementLine(
+            id, self.parse_datetime(booking_date), note, self.parse_float(amount)
+        )
         stmt_line.payee = payee_name
         stmt_line.date_user = self.parse_datetime(value_date)
 
         # Credit & Debit stuff
         stmt_line.trntype = "DEP"
-        if c_or_d == 'D':
+        if c_or_d == "D":
             stmt_line.amount = -stmt_line.amount
             stmt_line.trntype = "DEBIT"
 
         # Various types
-        if type_code == 'CHOU':
+        if type_code == "CHOU":
             stmt_line.trntype = "ATM"
-        elif type_code == 'MEMD':
+        elif type_code == "MEMD":
             stmt_line.trntype = "SRVCHG"
-        elif type_code == 'OUTP':
+        elif type_code == "OUTP":
             stmt_line.trntype = "PAYMENT"
-        elif type_code == 'INP':
+        elif type_code == "INP":
             stmt_line.trntype = "XFER"
-
 
         # DEBUG
         if self.debug:
@@ -98,7 +107,7 @@ class SwedbankLVFidavistaStatementParser(StatementParser):
         return stmt_line
 
     def parse_float(self, value):
-        return value if isinstance(value, float) else float(value.replace(',', '.'))
+        return value if isinstance(value, float) else float(value.replace(",", "."))
 
 
 class SwedbankLVFiDAViStaPlugin(Plugin):
@@ -106,5 +115,5 @@ class SwedbankLVFiDAViStaPlugin(Plugin):
 
     def get_parser(self, fin):
         parser = SwedbankLVFidavistaStatementParser(fin)
-        parser.statement.currency = self.settings.get('currency', 'EUR')
+        parser.statement.currency = self.settings.get("currency", "EUR")
         return parser

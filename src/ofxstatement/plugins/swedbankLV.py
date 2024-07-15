@@ -11,22 +11,17 @@ LINETYPE_TRANSACTION = "20"
 LINETYPE_STARTBALANCE = "10"
 LINETYPE_ENDBALANCE = "86"
 
-CARD_PURCHASE_RE = re.compile(
-    r"PIRKUMS \d+ (\d\d\d\d\.\d\d\.\d\d) .* \((\d+)\).*")
+CARD_PURCHASE_RE = re.compile(r"PIRKUMS \d+ (\d\d\d\d\.\d\d\.\d\d) .* \((\d+)\).*")
 
 
 class SwedbankLVCsvStatementParser(CsvStatementParser):
-    mappings = {"date": 2,
-                "payee": 3,
-                "memo": 4,
-                "amount": 5,
-                "id": 8}
+    mappings = {"date": 2, "payee": 3, "memo": 4, "amount": 5, "id": 8}
     date_format = "%d.%m.%Y"
 
-    debug = (logging.getLogger().getEffectiveLevel() == logging.DEBUG)
+    debug = logging.getLogger().getEffectiveLevel() == logging.DEBUG
 
     def split_records(self):
-        csv_file = csv.reader(self.fin.readlines(), delimiter=';', quotechar='"')
+        csv_file = csv.reader(self.fin.readlines(), delimiter=";", quotechar='"')
         return csv_file
 
     def parse_record(self, line):
@@ -43,10 +38,10 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
         if lineType == LINETYPE_TRANSACTION:
 
             # Fix numbers
-            line[5] = line[5].replace(',', '.')
+            line[5] = line[5].replace(",", ".")
 
             # Convert LVL to EUR
-            if line[6] == 'LVL':
+            if line[6] == "LVL":
                 line[5] = round(float(line[5]) / 0.702804, 2)
 
             # parse transaction line in standard fasion
@@ -56,7 +51,7 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
                 stmtline.amount = -stmtline.amount
                 stmtline.trntype = "DEBIT"
 
-            if line[9] == 'KOM':
+            if line[9] == "KOM":
                 stmtline.trntype = "SRVCHG"
 
             m = CARD_PURCHASE_RE.match(stmtline.memo)
@@ -89,12 +84,13 @@ class SwedbankLVCsvStatementParser(CsvStatementParser):
             if self.debug:
                 print("Start balance: %s" % self.statement.start_balance)
 
+
 class SwedbankLVPlugin(Plugin):
     """Latvian Swedbank CSV"""
 
     def get_parser(self, fin):
-        encoding = self.settings.get('charset', 'utf-8')
+        encoding = self.settings.get("charset", "utf-8")
         f = open(fin, "r", encoding=encoding)
         parser = SwedbankLVCsvStatementParser(f)
-        parser.statement.currency = self.settings.get('currency', 'EUR')
+        parser.statement.currency = self.settings.get("currency", "EUR")
         return parser

@@ -43,11 +43,13 @@ class SebLV_CSVStatementParser(CsvStatementParser):
 
         if not self.statement.account_id:
             self.statement.account_id = account_id
-            self.accounts[account_id] = BankAccount("AS \"SEB banka\"", account_id)
+            self.accounts[account_id] = BankAccount('AS "SEB banka"', account_id)
             self.accounts[account_id].branch_id = "UNLALV2X"
 
         if from_account_id and not from_account_id in self.accounts:
-            self.accounts[from_account_id] = BankAccount(from_bank_name, from_account_id)
+            self.accounts[from_account_id] = BankAccount(
+                from_bank_name, from_account_id
+            )
             self.accounts[from_account_id].branch_id = from_bank_code
 
         # Convert LVL to EUR
