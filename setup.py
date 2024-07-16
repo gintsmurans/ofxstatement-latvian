@@ -22,7 +22,7 @@ setup(
     license="GPLv3",
     keywords=["ofx", "ofxstatement", "banking", "statement", "latvia"],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python :: 3",
         "Natural Language :: English",
         "Topic :: Office/Business :: Financial :: Accounting",
