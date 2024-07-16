@@ -6,9 +6,9 @@
 from setuptools import find_packages
 from distutils.core import setup
 
-version = "1.6.0"
+version = "1.6.1"
 
-with open("README.rst") as f:
+with open("README.md") as f:
     long_description = f.read()
 
 setup(
