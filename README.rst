@@ -22,3 +22,5 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e ".[dev]"
 ```
+
+Also for imports to work, temporary rename __init__.py inside of ofxstatement folder to something else.
