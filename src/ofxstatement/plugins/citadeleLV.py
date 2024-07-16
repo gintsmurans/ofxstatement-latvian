@@ -1,6 +1,5 @@
 """Parser implementation for Citadele generated statement reports"""
 
-import re
 import logging
 from xml.etree import ElementTree
 
@@ -10,48 +9,63 @@ from ofxstatement.statement import Statement, StatementLine
 
 
 class CitadeleLVStatementParser(StatementParser):
-    date_format = "%Y-%m-%d"
+    date_format: str = "%Y-%m-%d"
 
-    statement = None
-    fin = None  # file input stream
+    statement: Statement | None = None
+    fin: str | None = None  # file input stream
 
     debug = logging.getLogger().getEffectiveLevel() == logging.DEBUG
 
-    def __init__(self, fin):
+    def __init__(self, fin: str):
         self.statement = Statement()
         self.fin = fin
 
-    def split_records(self):
+    def split_records(self) -> list[ElementTree.Element]:
+        assert self.fin is not None, "No input file provided"
+
         xml = ElementTree.parse(self.fin)
         xml = xml.getroot()
 
         namespaces = {"ns": xml.tag[1:].partition("}")[0]}
         statement = xml.find("ns:Statement", namespaces=namespaces)
+        if statement is None:
+            raise Exception("No statement found in XML")
 
         period = statement.find("ns:Period", namespaces=namespaces)
-        self.statement.start_date = self.parse_datetime(
-            period.find("ns:StartDate", namespaces=namespaces).text
-        )
-        self.statement.end_date = self.parse_datetime(
-            period.find("ns:EndDate", namespaces=namespaces).text
-        )
+        if period is None:
+            raise Exception("No period found in XML")
+
+        start_date = period.find("ns:StartDate", namespaces=namespaces)
+        if start_date is None:
+            raise Exception("No start date found in XML")
+        self.statement.start_date = self.parse_datetime(start_date.text)
+
+        end_date = period.find("ns:EndDate", namespaces=namespaces)
+        if end_date is None:
+            raise Exception("No end date found in XML")
+        self.statement.end_date = self.parse_datetime(end_date.text)
 
         account = statement.find("ns:AccountSet", namespaces=namespaces)
-        if not self.statement.account_id:
-            self.statement.account_id = account.find(
-                "ns:AccNo", namespaces=namespaces
-            ).text
+        if account is None:
+            raise Exception("No account found in XML")
+
+        account_id = account.find("ns:AccNo", namespaces=namespaces)
+        if not self.statement.account_id and account_id is not None:
+            self.statement.account_id = account_id.text
+
+        opening_balance = account.find("ns:OpenBal", namespaces=namespaces)
+        if opening_balance is None:
+            raise Exception("No opening balance found in XML")
+        self.statement.start_balance = self.parse_float(opening_balance.text)
 
         transactions = account.find("ns:CcyStmt", namespaces=namespaces)
-        self.statement.start_balance = self.parse_float(
-            transactions.find("ns:OpenBal", namespaces=namespaces).text
-        )
-
+        if transactions is None:
+            raise Exception("No transactions found in XML")
         all_transactions = transactions.findall("ns:TrxSet", namespaces=namespaces)
 
         return all_transactions
 
-    def parse_record(self, line):
+    def parse_record(self, line: ElementTree.Element) -> StatementLine:
         # Namespace stuff
         namespaces = {"ns": line.tag[1:].partition("}")[0]}
 
@@ -99,14 +113,20 @@ class CitadeleLVStatementParser(StatementParser):
 
         return stmt_line
 
-    def parse_float(self, value):
-        return value if isinstance(value, float) else float(value.replace(",", "."))
+    def parse_float(self, value: float | str) -> float:
+        if isinstance(value, float):
+            return value
+
+        if isinstance(value, str):
+            value = value.replace(",", ".")
+
+        return float(value)
 
 
 class CitadeleLVPlugin(Plugin):
     """Latvian Citadele CSV"""
 
-    def get_parser(self, fin):
+    def get_parser(self, fin: str) -> CitadeleLVStatementParser:
         parser = CitadeleLVStatementParser(fin)
         parser.statement.currency = self.settings.get("currency", "EUR")
         return parser

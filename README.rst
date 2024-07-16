@@ -13,3 +13,12 @@ Statements from these banks are currently supported:
 .. _DNB: https://www.dnb.lv/
 .. _Citadele: http://www.citadele.lv/
 .. _SEB: http://www.seb.lv/
+
+
+## Development
+To run locally and edit the code, do the following:
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"
+```
